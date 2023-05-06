@@ -2,13 +2,9 @@ import torch
 import torch.nn.functional as F
 import random
 
-import torch
-import torch.nn.functional as F
-import random
-
-import torch
-import torch.nn.functional as F
-import random
+import os
+import cv2
+import numpy as np
 
 class AutoAttack(torch.nn.Module):
     def __init__(self, sigma=1.0, brightness=0.1, contrast=0.1):
@@ -19,7 +15,7 @@ class AutoAttack(torch.nn.Module):
 
     def forward(self, x):
         # 随机选择一种攻击方式
-        attack_type = random.choice(['gaussian_blur', 'brightness', 'contrast', 'grayscale', 'flip'])
+        attack_type = random.choice(['gaussian_blur', 'brightness', 'contrast'])
 
         # 高斯模糊
         if attack_type == 'gaussian_blur':
@@ -34,15 +30,6 @@ class AutoAttack(torch.nn.Module):
             mean = torch.mean(x, dim=(2, 3), keepdim=True)
             x = (x - mean) * (1 + self.contrast) + mean
             x = torch.clamp(x, 0, 1)
-
-        # 转换为灰度图
-        elif attack_type == 'grayscale':
-            x = torch.mean(x, dim=1, keepdim=True)
-
-        # 随机翻转
-        elif attack_type == 'flip':
-            if random.random() < 0.5:
-                x = torch.flip(x, dims=[3])
 
         return x
 
@@ -62,6 +49,43 @@ class AutoAttack(torch.nn.Module):
         
 
 
+def grayscale(img):
+    # 将彩色图像转换为灰度图像
+    return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
+def random_mask(img):
+    # 随机生成遮挡区域
+    h, w = img.shape[:2]
+    mask = np.zeros((h, w), dtype=np.uint8)
+    x1, y1 = random.randint(0, w // 2), random.randint(0, h // 2)
+    x2, y2 = random.randint(w // 2, w), random.randint(h // 2, h)
+    cv2.rectangle(mask, (x1, y1), (x2, y2), color=255, thickness=-1)
+    return mask
+
+def random_flip(img):
+    # 随机水平翻转或垂直翻转图像
+    flip_code = random.choice([-1, 0, 1])
+    return cv2.flip(img, flip_code)
+
+def apply_transforms(img):
+    # 将图像随机转换为灰度图、随机遮挡和随机翻转
+    img = grayscale(img)
+    mask = random_mask(img)
+    img = cv2.bitwise_and(img, img, mask=mask)
+    img = random_flip(img)
+    return img
+
+def process_images_in_directory(input_dir, output_dir):
+    # 遍历输入目录下的所有文件
+    for filename in os.listdir(input_dir):
+        if filename.endswith('.jpg') or filename.endswith('.png'):
+            # 读取图片并进行处理
+            input_path = os.path.join(input_dir, filename)
+            img = cv2.imread(input_path)
+            img = apply_transforms(img)
+
+            # 将处理后的图片保存到输出目录
+            output_path = os.path.join(output_dir, filename)
+            cv2.imwrite(output_path, img)
 
 
