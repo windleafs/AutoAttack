@@ -6,6 +6,10 @@ import torch
 import torch.nn.functional as F
 import random
 
+import torch
+import torch.nn.functional as F
+import random
+
 class AutoAttack(torch.nn.Module):
     def __init__(self, sigma=1.0, brightness=0.1, contrast=0.1):
         super(AutoAttack, self).__init__()
@@ -15,7 +19,7 @@ class AutoAttack(torch.nn.Module):
 
     def forward(self, x):
         # 随机选择一种攻击方式
-        attack_type = random.choice(['gaussian_blur', 'brightness', 'contrast'])
+        attack_type = random.choice(['gaussian_blur', 'brightness', 'contrast', 'grayscale', 'flip'])
 
         # 高斯模糊
         if attack_type == 'gaussian_blur':
@@ -23,12 +27,22 @@ class AutoAttack(torch.nn.Module):
 
         # 亮度增加
         elif attack_type == 'brightness':
-            x = x + self.brightness
+            x = torch.clamp(x + self.brightness, 0, 1)
 
         # 对比度增加
         elif attack_type == 'contrast':
             mean = torch.mean(x, dim=(2, 3), keepdim=True)
             x = (x - mean) * (1 + self.contrast) + mean
+            x = torch.clamp(x, 0, 1)
+
+        # 转换为灰度图
+        elif attack_type == 'grayscale':
+            x = torch.mean(x, dim=1, keepdim=True)
+
+        # 随机翻转
+        elif attack_type == 'flip':
+            if random.random() < 0.5:
+                x = torch.flip(x, dims=[3])
 
         return x
 
@@ -45,6 +59,7 @@ class AutoAttack(torch.nn.Module):
         x = F.conv2d(x, kernel, stride=1, groups=x.shape[1])
 
         return x
+        
 
 
 
