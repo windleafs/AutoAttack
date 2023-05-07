@@ -3,7 +3,7 @@ import sys
 from setuptools import setup, find_packages
 here = os.path.abspath(os.path.dirname(__file__))
 
-requires = ['numpy','opencv-python']
+requires = ['numpy']
 
 setup(name='AutoAttack',
       version='1.2',
