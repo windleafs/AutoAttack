@@ -2,6 +2,7 @@ import os
 import cv2
 import numpy as np
 import random
+from tqdm import tqdm  
 
 class ImgEnhance():
     def __init__(self):
@@ -36,15 +37,15 @@ class ImgEnhance():
             img = self.random_flip(img)
         return img
 
-    def process_images_in_directory(self,input_dir, output_dir,operation):
-        # 遍历输入目录下的所有文件
-        for filename in os.listdir(input_dir):
-            if filename.endswith('.jpg') or filename.endswith('.png'):
-                # 读取图片并进行处理
-                input_path = os.path.join(input_dir, filename)
-                img = cv2.imread(input_path)
-                img = self.apply_transforms(img,operation)
+def process_images_in_directory(self, input_dir, output_dir, operation,prefix=''):
+    # 遍历输入目录下的所有文件
+    for filename in tqdm(os.listdir(input_dir)):  # 添加tqdm
+        if filename.endswith('.jpg') or filename.endswith('.png'):
+            # 读取图片并进行处理
+            input_path = os.path.join(input_dir, filename)
+            img = cv2.imread(input_path)
+            img = self.apply_transforms(img, operation)
 
-                # 将处理后的图片保存到输出目录
-                output_path = os.path.join(output_dir, operation+'_'+filename)
-                cv2.imwrite(output_path, img)
+            # 将处理后的图片保存到输出目录
+            output_path = os.path.join(output_dir, operation+prefix+'_'+filename)
+            cv2.imwrite(output_path, img)

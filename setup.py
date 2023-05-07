@@ -3,7 +3,7 @@ import sys
 from setuptools import setup, find_packages
 here = os.path.abspath(os.path.dirname(__file__))
 
-requires = ['numpy']
+requires = ['numpy','tqdm']
 
 setup(name='AutoAttack',
       version='1.2',
