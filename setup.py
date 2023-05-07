@@ -3,10 +3,10 @@ import sys
 from setuptools import setup, find_packages
 here = os.path.abspath(os.path.dirname(__file__))
 
-requires = ['numpy','tqdm']
+requires = ['numpy']
 
 setup(name='AutoAttack',
-      version='1.2',
+      version='1.3',
       description='AutoAttack',
       author='windleaf',
       url='https://gitee.com/windleafs/auto-attack.git',
