@@ -67,22 +67,25 @@ def random_flip(img):
     flip_code = random.choice([-1, 0, 1])
     return cv2.flip(img, flip_code)
 
-def apply_transforms(img):
+def apply_transforms(img,operation):
     # 将图像随机转换为灰度图、随机遮挡和随机翻转
-    img = grayscale(img)
-    mask = random_mask(img)
-    img = cv2.bitwise_and(img, img, mask=mask)
-    img = random_flip(img)
+    if operation=='gray':
+        img = grayscale(img)
+    elif operation=='mask':
+        mask = random_mask(img)
+        img = cv2.bitwise_and(img, img, mask=mask)
+    elif operation=='flip':
+        img = random_flip(img)
     return img
 
-def process_images_in_directory(input_dir, output_dir):
+def process_images_in_directory(input_dir, output_dir,operation):
     # 遍历输入目录下的所有文件
     for filename in os.listdir(input_dir):
         if filename.endswith('.jpg') or filename.endswith('.png'):
             # 读取图片并进行处理
             input_path = os.path.join(input_dir, filename)
             img = cv2.imread(input_path)
-            img = apply_transforms(img)
+            img = apply_transforms(img,operation)
 
             # 将处理后的图片保存到输出目录
             output_path = os.path.join(output_dir, filename)
