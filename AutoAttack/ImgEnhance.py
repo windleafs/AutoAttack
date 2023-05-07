@@ -46,5 +46,5 @@ class ImgEnhance():
                 img = self.apply_transforms(img,operation)
 
                 # 将处理后的图片保存到输出目录
-                output_path = os.path.join(output_dir, filename)
+                output_path = os.path.join(output_dir, operation+'_'+filename)
                 cv2.imwrite(output_path, img)
